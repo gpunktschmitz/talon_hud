@@ -11,25 +11,25 @@ class ProgrammingLanguagePoller(Poller):
     job = None
     current_language = None
     can_toggle = False
-    
+
     def enable(self):
         if not self.enabled:
             self.job = cron.interval("200ms", self.language_check)
             self.enabled = True
 
-    
+
     def disable(self):
         if self.enabled:
             self.enabled = False
             cron.cancel(self.job)
             self.job = None
             self.content.publish_event("status_icons", "programming_toggle", "remove")
-            
+
     def language_check(self):
         global languages
         can_toggle = actions.user.hud_can_toggle_programming_language()
         language = actions.user.hud_get_programming_language()
-        
+
         if self.current_language != language or can_toggle != self.can_toggle:
             self.current_language = language
             self.can_toggle = can_toggle
@@ -39,7 +39,7 @@ class ProgrammingLanguagePoller(Poller):
                 if language in languages:
                     icon = languages[language]["icon"]
                     text = languages[language]["extension"]
-                
+
                 callback = False
                 if can_toggle:
                     callback = lambda _, _2: actions.user.hud_toggle_programming_language()
@@ -52,7 +52,7 @@ class ProgrammingLanguagePoller(Poller):
 
 def add_statusbar_programming_icon(_ = None):
     actions.user.hud_activate_poller("programming_toggle")
-    
+
 def remove_statusbar_programming_icon(_ = None):
     actions.user.hud_deactivate_poller("programming_toggle")
     actions.user.hud_remove_status_icon("programming_toggle")
@@ -75,27 +75,28 @@ def load_languages(languages_file):
             "c,,programming_c",
             "cplusplus,.cpp,programming_cplusplus",
             "csharp,.cs,programming_cplusplus",
-            "objectivec,,programming_objectivec",
             "haskel,.hs,programming_haskel",
-            "swift,,programming_swift",
-            "rust,.rs,programming_rust",
-            "r,.r,programming_r",
-            "php,.php,programming_php",
-            "ruby,.rb,programming_ruby",
-            "python,.py,programming_python",
-            "lua,.lua,programming_lua",
             "html,.html,programming_html",
             "javascript,.js,programming_javascript",
-            "typescript,.ts,programming_typescript",
-            "perl,.pl,programming_perl",
             "json,.json,programming_json",
+            "lua,.lua,programming_lua",
             "markdown,.md,programming_markdown",
+            "objectivec,,programming_objectivec",
+            "perl,.pl,programming_perl",
+            "php,.php,programming_php",
+            "powershell,.ps1,programming_powershell"
+            "python,.py,programming_python",
+            "r,.r,programming_r",
+            "ruby,.rb,programming_ruby",
+            "rust,.rs,programming_rust",
+            "swift,,programming_swift",
+            "typescript,.ts,programming_typescript",
             "yaml,.yml,"
         ]
         file_contents = "" + languages_header + "\n"
         file_contents += "\n".join(language_defaults)
         with open(languages_file, "w") as f:
-            f.write(file_contents)    
+            f.write(file_contents)
 
     with open(languages_file, "r") as file:
         for line in file.readlines():
@@ -136,7 +137,7 @@ class Actions:
     def hud_toggle_programming_language():
         """Toggle the programming language manually in the status bar"""
         actions.user.code_clear_language_mode()
-        
+
     def hud_get_programming_language() -> str:
         """Get the programming language to be displayed in the status bar - By default tries to mimic knausj"""
         active_modes = scope.get("mode")
@@ -160,4 +161,3 @@ class Actions:
             return ""
         else:
             return lang if lang else ""
-
